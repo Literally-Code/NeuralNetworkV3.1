@@ -13,7 +13,7 @@ Node::Node()
 
 Node::Node(int index, int numInputs)
 {
-	// Local fields
+	// Local variables
 	int weight = 0;
 
 	// Initialize data
@@ -34,9 +34,9 @@ Node::~Node()
 
 }
 
-void Node::activate(ACTIVATION_TYPE activation, double* inputs, double* outputs)
+void Node::activate(double* inputs, double* outputs)
 {
-	// Local fields
+	// Local variables
 	int weight = 0;
 	double weightedSum = 0.0;
 
@@ -46,32 +46,15 @@ void Node::activate(ACTIVATION_TYPE activation, double* inputs, double* outputs)
 		weightedSum += this->inputWeights[weight] * inputs[weight];
 	}
 
-	switch (activation)
-	{
-	case SIGMOID:
-		this->output = sigmoid(weightedSum + this->bias);
-		this->outputDerivative = sigmoidDerivative(weightedSum + this->bias);
-		break;
-	case RELU:
-		this->output = rectifiedLU(weightedSum + this->bias);
-		this->outputDerivative = rectifiedLUDerivative(weightedSum + this->bias);
-		break;
-	case SOFTPLUS:
-		this->output = softPlus(weightedSum + this->bias);
-		this->outputDerivative = sigmoid(weightedSum + this->bias);
-		break;
-	default:
-		std::cerr << "Invalid activation type in Node" << std::endl;
-		exit(-1);
-		break;
-	}
+	this->output = sigmoid(weightedSum + this->bias);
+	this->outputDerivative = sigmoidDerivative(weightedSum + this->bias);
 
 	outputs[this->index] = this->output;
 }
 
 void Node::train(Layer* prevLayer)
 {
-	// Local fields
+	// Local variables
 	int weight = 0;
 
 	// Traverse weights
@@ -90,7 +73,7 @@ void Node::train(Layer* prevLayer)
 
 void Node::trainFirst(double* inputs)
 {
-	// Local fields
+	// Local variables
 	int weight = 0;
 
 	// Traverse weights
@@ -111,7 +94,7 @@ Layer::Layer()
 
 Layer::Layer(int numNodes, int numInputs, double* inputs)
 {
-	// Local fields
+	// Local variables
 	int node = 0;
 
 	// Initialize data
@@ -135,19 +118,19 @@ Layer::~Layer()
 
 void Layer::activate()
 {
-	// Local fields
+	// Local variables
 	int node = 0;
 
 	// Traverse nodes
 	for (node; node < this->numNodes; node++)
 	{
-		this->nodes[node].activate(this->activation, this->inputs, this->outputs);
+		this->nodes[node].activate(this->inputs, this->outputs);
 	}
 }
 
 void Layer::initChainDerivative(double* expectedResults)
 {
-	// Local fields
+	// Local variables
 	int node = 0;
 
 	// Set nodes' chain derivative to SSR derivative. dC/dO.
@@ -159,7 +142,7 @@ void Layer::initChainDerivative(double* expectedResults)
 
 void Layer::train(Layer* prevLayer)
 {
-	// Local fields
+	// Local variables
 	int node = 0;
 
 	// Traverse nodes
@@ -171,7 +154,7 @@ void Layer::train(Layer* prevLayer)
 
 void Layer::trainFirst()
 {
-	// Local fields
+	// Local variables
 	int node = 0;
 
 	// Traverse nodes
@@ -183,16 +166,34 @@ void Layer::trainFirst()
 
 // Network
 
-Network::Network(int sizeInput)
+Network::Network(int sizeInput, int numLayers, int sizeLayers, int sizeOutput)
 {
 	// Local fields
 	int layer = 1;
 
 	// Initialize fields
 	this->sizeInput = sizeInput;
+	this->numLayers = numLayers;
+	this->sizeLayers = sizeLayers;
+	this->sizeOutput = sizeOutput;
 
 	// Initialize inputs
 	this->inputs = new double[sizeInput];
+
+	// Initialize layers vector
+	this->layers = new Layer[numLayers];
+
+	// Initialize first hidden layer
+	this->layers[0] = Layer(sizeLayers, sizeInput, this->inputs);
+
+	// Initialize hidden layers
+	for (layer; layer < numLayers - 1; layer++)
+	{
+		this->layers[layer] = Layer(sizeLayers, sizeLayers, this->layers[layer - 1].outputs);
+	}
+
+	// Initialize output layer
+	this->layers[numLayers - 1] = Layer(sizeOutput, sizeLayers, this->layers[numLayers - 2].outputs);
 }
 
 Network::~Network()
@@ -200,31 +201,9 @@ Network::~Network()
 	
 }
 
-void Network::addLayer(ACTIVATION_TYPE activationType, int size)
-{
-	// Local fields
-	Layer prevLayer;
-	double* prevOutputs = nullptr;
-	int prevSize = 0;
-
-	if (this->layers.empty())
-	{
-		prevOutputs = this->inputs;
-		this->sizeInput;
-	}
-	else
-	{
-		prevLayer = this->layers.back();
-		prevOutputs = prevLayer.outputs;
-		prevSize = prevLayer.numNodes;
-	}
-	Layer newLayer(size, prevLayer.numNodes, prevOutputs);
-	this->layers.push_back(newLayer);
-}
-
 void Network::activate()
 {
-	// Local fields
+	// Local variables
 	int layer = 0;
 
 	// Activate hidden layers
@@ -236,7 +215,7 @@ void Network::activate()
 
 void Network::backPropagate(double* expectedOutputs)
 {
-	// Local fields
+	// Local variables
 	int layer = this->numLayers - 1;
 
 	// Init chain derivative dC/dO
@@ -254,7 +233,7 @@ void Network::backPropagate(double* expectedOutputs)
 
 void Network::setInput(double* input)
 {
-	// Local fields
+	// Local variables
 	int inputIndex = 0;
 
 	// Traverse inputs
@@ -266,28 +245,30 @@ void Network::setInput(double* input)
 
 void Network::visualize()
 {
-	// Local fields
+	// Local variables
 	int layer = 0;
 	int node = 0;
 	int weight = 0;
+	Layer* currLayer = nullptr;
 	
 	// Traverse network
 	for (layer = 0; layer < this->numLayers; layer++)
 	{
+		currLayer = &this->layers[layer];
 		std::cout << "Layer: " << layer << std::endl;
-		std::cout << "Number of Inputs: " << this->layers[layer].numInputs << std::endl;
-		std::cout << "Number of Nodes: " << this->layers[layer].numNodes << std::endl;
-		for (node = 0; node < this->layers[layer].numNodes; node++)
+		std::cout << "Number of Inputs: " << currLayer->numInputs << std::endl;
+		std::cout << "Number of Nodes: " << currLayer->numNodes << std::endl;
+		for (node = 0; node < currLayer->numNodes; node++)
 		{
 			std::cout << " Node: " << node << std::endl;
-			std::cout << "   Output: " << this->layers[layer].nodes[node].output << std::endl;
-			std::cout << "   Bias: " << this->layers[layer].nodes[node].bias << std::endl;
-			std::cout << "   Chain: " << this->layers[layer].nodes[node].debugChain << std::endl;
-			std::cout << "   Output Derivative: " << this->layers[layer].nodes[node].outputDerivative << std::endl;
-			std::cout << "   Number of Weights: " << this->layers[layer].nodes[node].numInputs << std::endl;
-			for (weight = 0; weight < this->layers[layer].nodes[node].numInputs; weight++)
+			std::cout << "   Output: " << currLayer->nodes[node].output << std::endl;
+			std::cout << "   Bias: " << currLayer->nodes[node].bias << std::endl;
+			std::cout << "   Chain: " << currLayer->nodes[node].debugChain << std::endl;
+			std::cout << "   Output Derivative: " << currLayer->nodes[node].outputDerivative << std::endl;
+			std::cout << "   Number of Weights: " << currLayer->nodes[node].numInputs << std::endl;
+			for (weight = 0; weight < currLayer->nodes[node].numInputs; weight++)
 			{
-				std::cout << "     Input weight " << weight << ": " << this->layers[layer].nodes[node].inputWeights[weight] << std::endl;
+				std::cout << "     Input weight " << weight << ": " << currLayer->nodes[node].inputWeights[weight] << std::endl;
 			}
 		}
 	}
@@ -295,7 +276,7 @@ void Network::visualize()
 
 void Network::printOutput()
 {
-	// Local fields
+	// Local variables
 	int node = 0;
 	Layer& outputLayer = this->layers[this->numLayers - 1];
 
@@ -308,7 +289,7 @@ void Network::printOutput()
 
 void Network::inputPng(const char* fileName)
 {
-	// Local fields
+	// Local variables
 	int x = 0;
 	int y = 0;
 	int width = 0;
@@ -330,7 +311,7 @@ void Network::inputPng(const char* fileName)
 	// Guard data loaded can fit into network
 	if (width * height > this->sizeInput)
 	{
-		std::cerr << "Loaded data does not fit network input" << std::endl;
+		std::cerr << "Loaded data does not fit network input. File:" << fileName << std::endl;
 		return;
 	}
 
