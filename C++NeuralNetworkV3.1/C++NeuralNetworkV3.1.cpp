@@ -10,7 +10,7 @@
 int main()
 {
     // Local variables
-    const std::string dataLocation = "C:\\Users\\imlit\\Documents\\datasets\\image\\";
+    const std::string dataLocation = ".\\image\\";
     const std::string trainingFile = dataLocation + "data.csv";
     std::vector<std::string> tokens;
     std::vector<std::string> fileNames;
