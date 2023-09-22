@@ -19,7 +19,7 @@ struct Node
 	Node(int index, int numInputs);
 	~Node();
 
-	void activate(const std::vector<double>& inputs,const std::vector<double>& outputs);
+	void activate(const std::vector<double>& inputs, std::vector<double>& outputs);
 	void train(Layer& prevLayer);
 	void trainFirst(const std::vector<double>& inputs);
 
