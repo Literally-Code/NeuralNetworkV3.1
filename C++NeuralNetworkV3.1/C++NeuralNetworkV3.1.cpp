@@ -20,7 +20,7 @@ int main()
     std::string lineBuffer;
     std::string token;
     std::vector<double> expectedOutput = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-    Network net = Network(IMAGE_SIZE * IMAGE_SIZE, 3, 32, 10);
+    Network net = Network(IMAGE_SIZE * IMAGE_SIZE, 2, 16, 10);
     if (!dataFile.is_open()) {
         std::cerr << "Error: Failed to open the file " << trainingFile << std::endl;
         return 1; // Exit with an error code
@@ -77,7 +77,7 @@ int main()
         net.Cost();
     }
 
-    //net.visualize();
+    // net.visualize();
     char c;
     std::cin >> c;
 }

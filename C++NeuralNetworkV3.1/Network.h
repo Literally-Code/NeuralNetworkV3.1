@@ -7,7 +7,7 @@
 #include "Arithmetic.h"
 
 constexpr int IMAGE_SIZE = 28;
-constexpr double LEARNING_RATE = 0.0000001;
+constexpr double LEARNING_RATE = 0.01;
 
 struct Node;
 struct Layer;

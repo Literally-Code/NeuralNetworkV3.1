@@ -319,7 +319,7 @@ void Network::inputPng(const char* fileName)
 	{
 		for (x = 0; x < width; x++)
 		{
-			this->inputs[x + width * y] = pixelData[x + width * y];
+			this->inputs[x + width * y] = pixelData[x + width * y] / 255.0;
 		}
 	}
 
