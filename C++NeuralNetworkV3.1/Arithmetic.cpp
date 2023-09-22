@@ -5,16 +5,16 @@ double randomInit()
 	return 1 - (2 * (double)rand() / RAND_MAX);
 }
 
-double softMax(int index, int sizeResults, double* results)
+double softMax(int index, const std::vector<double> results)
 {
 	// Local variables
 	int i = 0;
 	double denominator = 0.0;
 
 	// Calculate SoftMax
-	for (i; i< sizeResults; i++)
+	for(auto result : results)
 	{
-		denominator = exp(results[i]);
+		denominator = exp(result);
 	}
 
 	return exp(results[index]) / denominator;
@@ -46,14 +46,14 @@ double rectifiedLUDerivative(double x)
 	return x > 0 ? 1 : 0;
 }
 
-double SSR(int numResults, double* results, double* expectedResults)
+double SSR(std::vector<double> results, std::vector<double> expectedResults)
 {
 	// Local variables
 	int index = 0;
 	double sum = 0;
 
 	// Calculate SSR
-	for (index; index < numResults; index++)
+	for (index; index < results.size(); index++)
 	{
 		sum += pow((expectedResults[index] - results[index]), 2);
 	}
@@ -61,7 +61,7 @@ double SSR(int numResults, double* results, double* expectedResults)
 	return sum;
 }
 
-double SSRDerivative(int resultIndex, double* results, double* expectedResults)
+double SSRDerivative(int resultIndex, std::vector<double> results, std::vector<double> expectedResults)
 {
 	return 2 * (expectedResults[resultIndex] - results[resultIndex]);
 }

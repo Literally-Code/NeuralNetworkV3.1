@@ -19,7 +19,7 @@ int main()
     std::ifstream dataFile(trainingFile);
     std::string lineBuffer;
     std::string token;
-    double expectedOutput[10] = { 0.0 };
+    std::vector<double> expectedOutput = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
     Network net = Network(IMAGE_SIZE * IMAGE_SIZE, 3, 32, 10);
     if (!dataFile.is_open()) {
         std::cerr << "Error: Failed to open the file " << trainingFile << std::endl;
@@ -40,7 +40,7 @@ int main()
         tokens.clear();
     }
 
-    for (int epoch = 0; epoch < 100; epoch++)
+    for (int epoch = 0; epoch < 1000; epoch++)
     {
         std::cout << "Epoch: " << epoch << std::endl;
         for (int file = 0; file < pairSize; file++)
@@ -55,19 +55,26 @@ int main()
 
             net.activate();
             net.backPropagate(expectedOutput);
+
         }
+        net.inputPng(fileNames[0].c_str());
+
+        net.activate();
+
+        std::cout << fileNames[0] << " " << std::endl;
+        net.Cost();
     }
 
     // Test
 
-    for (int file = 0; file < pairSize; file++)
+    for (int file = 0; file < 1; file++)
     {
         net.inputPng(fileNames[file].c_str());
 
         net.activate();
 
         std::cout << fileNames[file] << " " << std::endl;
-        net.printOutput();
+        net.Cost();
     }
 
     //net.visualize();
