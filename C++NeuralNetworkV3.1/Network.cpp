@@ -282,7 +282,8 @@ void Network::Cost()
 	// Traverse nodes
 	for (int node = 0; node < outputLayer.numNodes; node++)
 	{
-		std::cout << node  << ": " << outputLayer.nodes[node].output << std::endl;
+		double soft = softMax(node, outputLayer.outputs);
+		std::cout << node  << ": " << soft << std::endl;
 	}
 }
 

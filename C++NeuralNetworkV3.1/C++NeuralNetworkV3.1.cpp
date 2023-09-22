@@ -40,7 +40,7 @@ int main()
         tokens.clear();
     }
 
-    for (int epoch = 0; epoch < 100; epoch++)
+    for (int epoch = 0; epoch < 1000; epoch++)
     {
         std::cout << "Epoch: " << epoch << std::endl;
         for (int file = 0; file < pairSize; file++)
