@@ -34,7 +34,7 @@ Node::~Node()
 
 }
 
-void Node::activate(std::vector<double> inputs, std::vector<double> outputs)
+void Node::activate(const std::vector<double>& inputs, std::vector<double>& outputs)
 {
 	// Local variables
 	int weight = 0;
@@ -71,7 +71,7 @@ void Node::train(Layer &prevLayer)
 	this->chainDerivative = 0.0;
 }
 
-void Node::trainFirst(std::vector<double> inputs)
+void Node::trainFirst(const std::vector<double>& inputs)
 {
 	// Local variables
 	int weight = 0;
@@ -92,7 +92,7 @@ void Node::trainFirst(std::vector<double> inputs)
 Layer::Layer()
 {}
 
-Layer::Layer(int numNodes, int numInputs, std::vector<double> inputs)
+Layer::Layer(int numNodes, int numInputs, const std::vector<double>& inputs)
 {
 	// Local variables
 	int node = 0;
@@ -128,7 +128,7 @@ void Layer::activate()
 	}
 }
 
-void Layer::initChainDerivative(std::vector<double> expectedResults)
+void Layer::initChainDerivative(const std::vector<double>& expectedResults)
 {
 	// Local variables
 	int node = 0;
@@ -213,7 +213,7 @@ void Network::activate()
 	}
 }
 
-void Network::backPropagate(std::vector<double> expectedOutputs)
+void Network::backPropagate(const std::vector<double>& expectedOutputs)
 {
 	// Local variables
 	int layer = this->numLayers - 1;
@@ -231,7 +231,7 @@ void Network::backPropagate(std::vector<double> expectedOutputs)
 	this->layers[0].trainFirst();
 }
 
-void Network::setInput(std::vector<double> input)
+void Network::setInput(const std::vector<double>& input)
 {
 	// Local variables
 	int inputIndex = 0;
@@ -319,9 +319,12 @@ void Network::inputPng(const char* fileName)
 	{
 		for (x = 0; x < width; x++)
 		{
-			this->inputs[x + width * y] = pixelData[x + width * y];
+			this->inputs.at(x + width * y) = pixelData[x + width * y] / 255.0;
 		}
 	}
+
+	// close stbi file
+	stbi_image_free(pixelData);
 }
 
 double Network::getInputSize()
