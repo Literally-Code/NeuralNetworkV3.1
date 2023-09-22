@@ -325,7 +325,7 @@ void Network::inputPng(const char* fileName)
 	}
 
 	// No more memory leak :)
-	delete pixelData;
+	stbi_image_free(pixelData);
 }
 
 double Network::getInputSize()
