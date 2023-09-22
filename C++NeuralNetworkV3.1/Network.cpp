@@ -323,7 +323,7 @@ void Network::inputPng(const char* fileName)
 		}
 	}
 
-	// close stbi file
+	// No more memory leak :)
 	stbi_image_free(pixelData);
 }
 
