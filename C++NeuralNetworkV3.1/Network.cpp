@@ -18,7 +18,7 @@ Node::Node(int index, int numInputs)
 
 	// Initialize data
 	this->index = index;
-	this->inputWeights = new double[numInputs];
+	this->inputWeights.resize(numInputs);
 	this->bias = randomInit();
 	this->numInputs = numInputs;
 
@@ -34,7 +34,7 @@ Node::~Node()
 
 }
 
-void Node::activate(double* inputs, double* outputs)
+void Node::activate(std::vector<double> inputs, std::vector<double> outputs)
 {
 	// Local variables
 	int weight = 0;
@@ -52,7 +52,7 @@ void Node::activate(double* inputs, double* outputs)
 	outputs[this->index] = this->output;
 }
 
-void Node::train(Layer* prevLayer)
+void Node::train(Layer &prevLayer)
 {
 	// Local variables
 	int weight = 0;
@@ -61,17 +61,17 @@ void Node::train(Layer* prevLayer)
 	for (weight; weight < this->numInputs; weight++)
 	{
 		// Update prev layer node's chain
-		prevLayer->nodes[weight].chainDerivative += this->chainDerivative * this->inputWeights[weight] * this->outputDerivative;
+		prevLayer.nodes[weight].chainDerivative += this->chainDerivative * this->inputWeights[weight] * this->outputDerivative;
 
 		// Update weight
-		this->inputWeights[weight] += this->chainDerivative * prevLayer->nodes[weight].output * this->outputDerivative * LEARNING_RATE;
+		this->inputWeights[weight] += this->chainDerivative * prevLayer.nodes[weight].output * this->outputDerivative * LEARNING_RATE;
 		this->bias += this->chainDerivative * this->outputDerivative * LEARNING_RATE;
 	}
 	this->debugChain = this->chainDerivative;
 	this->chainDerivative = 0.0;
 }
 
-void Node::trainFirst(double* inputs)
+void Node::trainFirst(std::vector<double> inputs)
 {
 	// Local variables
 	int weight = 0;
@@ -92,7 +92,7 @@ void Node::trainFirst(double* inputs)
 Layer::Layer()
 {}
 
-Layer::Layer(int numNodes, int numInputs, double* inputs)
+Layer::Layer(int numNodes, int numInputs, std::vector<double> inputs)
 {
 	// Local variables
 	int node = 0;
@@ -100,8 +100,8 @@ Layer::Layer(int numNodes, int numInputs, double* inputs)
 	// Initialize data
 	this->numNodes = numNodes;
 	this->numInputs = numInputs;
-	this->nodes = new Node[numNodes];
-	this->outputs = new double[numNodes];
+	this->nodes.resize(numNodes);
+	this->outputs.resize(numNodes);
 	this->inputs = inputs;
 
 	// Initialize nodes
@@ -128,7 +128,7 @@ void Layer::activate()
 	}
 }
 
-void Layer::initChainDerivative(double* expectedResults)
+void Layer::initChainDerivative(std::vector<double> expectedResults)
 {
 	// Local variables
 	int node = 0;
@@ -140,7 +140,7 @@ void Layer::initChainDerivative(double* expectedResults)
 	}
 }
 
-void Layer::train(Layer* prevLayer)
+void Layer::train(Layer& prevLayer)
 {
 	// Local variables
 	int node = 0;
@@ -178,10 +178,10 @@ Network::Network(int sizeInput, int numLayers, int sizeLayers, int sizeOutput)
 	this->sizeOutput = sizeOutput;
 
 	// Initialize inputs
-	this->inputs = new double[sizeInput];
+	this->inputs.resize(sizeInput);
 
 	// Initialize layers vector
-	this->layers = new Layer[numLayers];
+	this->layers.resize(numLayers);
 
 	// Initialize first hidden layer
 	this->layers[0] = Layer(sizeLayers, sizeInput, this->inputs);
@@ -213,7 +213,7 @@ void Network::activate()
 	}
 }
 
-void Network::backPropagate(double* expectedOutputs)
+void Network::backPropagate(std::vector<double> expectedOutputs)
 {
 	// Local variables
 	int layer = this->numLayers - 1;
@@ -224,14 +224,14 @@ void Network::backPropagate(double* expectedOutputs)
 	// Traverse layers
 	for (layer; layer >= 1; layer--)
 	{
-		this->layers[layer].train(&this->layers[layer - 1]);
+		this->layers[layer].train(this->layers[layer - 1]);
 	}
 
 	// Train first layer
 	this->layers[0].trainFirst();
 }
 
-void Network::setInput(double* input)
+void Network::setInput(std::vector<double> input)
 {
 	// Local variables
 	int inputIndex = 0;
@@ -274,16 +274,15 @@ void Network::visualize()
 	}
 }
 
-void Network::printOutput()
+void Network::Cost()
 {
-	// Local variables
-	int node = 0;
+
 	Layer& outputLayer = this->layers[this->numLayers - 1];
 
 	// Traverse nodes
-	for (node; node < outputLayer.numNodes; node++)
+	for (int node = 0; node < outputLayer.numNodes; node++)
 	{
-		std::cout << outputLayer.nodes[node].output << std::endl;
+		std::cout << node  << ": " << outputLayer.nodes[node].output << std::endl;
 	}
 }
 

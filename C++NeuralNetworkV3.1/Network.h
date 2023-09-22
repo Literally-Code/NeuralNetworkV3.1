@@ -19,9 +19,9 @@ struct Node
 	Node(int index, int numInputs);
 	~Node();
 
-	void activate(double* inputs, double* outputs);
-	void train(Layer* prevLayer);
-	void trainFirst(double* inputs);
+	void activate(std::vector<double> inputs, std::vector<double> outputs);
+	void train(Layer& prevLayer);
+	void trainFirst(std::vector<double> inputs);
 
 	int index = 0;
 	double output = 0.0;
@@ -30,24 +30,24 @@ struct Node
 	double chainDerivative = 0.0;
 	double outputDerivative = 0.0;
 	double bias = 0.0;
-	double* inputWeights = nullptr;
+	std::vector<double> inputWeights;
 };
 
 struct Layer
 {
 	Layer();
-	Layer(int numNodes, int numInputs, double* inputs);
+	Layer(int numNodes, int numInputs, std::vector<double> inputs);
 	~Layer();
 
 	void activate();
-	void initChainDerivative(double* expectedOutputs);
-	void train(Layer* prevLayer);
+	void initChainDerivative(std::vector<double> expectedOutputs);
+	void train(Layer& prevLayer);
 	void trainFirst();
 	
-	double* inputs = nullptr;
-	double* outputs = nullptr;
+	std::vector<double> inputs;
+	std::vector<double> outputs;
 	int numNodes = 0;
-	Node* nodes = nullptr;
+	std::vector<Node> nodes;
 	int numInputs = 0;
 };
 
@@ -58,10 +58,10 @@ public:
 	~Network();
 
 	void activate();
-	void backPropagate(double* expectedOutput);
-	void setInput(double* inputs);
+	void backPropagate(std::vector<double> expectedOutput);
+	void setInput(std::vector<double> inputs);
 	void visualize();
-	void printOutput();
+	void Cost();
 	void inputPng(const char* fileName);
 	double getInputSize();
 
@@ -70,8 +70,8 @@ private:
 	int numLayers = 0;
 	int sizeLayers = 0;
 	int sizeOutput = 0;
-	double* inputs = nullptr;
-	Layer* layers;
+	std::vector<double> inputs;
+	std::vector<Layer> layers;
 };
 
 #endif
