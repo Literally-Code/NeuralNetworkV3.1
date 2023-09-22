@@ -34,7 +34,7 @@ Node::~Node()
 
 }
 
-void Node::activate(ACTIVATION_TYPE activation, double* inputs, double* outputs)
+void Node::activate(double* inputs, double* outputs)
 {
 	// Local fields
 	int weight = 0;
@@ -46,27 +46,9 @@ void Node::activate(ACTIVATION_TYPE activation, double* inputs, double* outputs)
 		weightedSum += this->inputWeights[weight] * inputs[weight];
 	}
 
-	switch (activation)
-	{
-	case SIGMOID:
-		this->output = sigmoid(weightedSum + this->bias);
-		this->outputDerivative = sigmoidDerivative(weightedSum + this->bias);
-		break;
-	case RELU:
-		this->output = rectifiedLU(weightedSum + this->bias);
-		this->outputDerivative = rectifiedLUDerivative(weightedSum + this->bias);
-		break;
-	case SOFTPLUS:
-		this->output = softPlus(weightedSum + this->bias);
-		this->outputDerivative = sigmoid(weightedSum + this->bias);
-		break;
-	default:
-		std::cerr << "Invalid activation type in Node" << std::endl;
-		exit(-1);
-		break;
-	}
-
+	this->output = sigmoid(weightedSum + this->bias);
 	outputs[this->index] = this->output;
+	this->outputDerivative = sigmoidDerivative(weightedSum + this->bias);
 }
 
 void Node::train(Layer* prevLayer)
@@ -141,7 +123,7 @@ void Layer::activate()
 	// Traverse nodes
 	for (node; node < this->numNodes; node++)
 	{
-		this->nodes[node].activate(this->activation, this->inputs, this->outputs);
+		this->nodes[node].activate(this->inputs, this->outputs);
 	}
 }
 
@@ -183,43 +165,41 @@ void Layer::trainFirst()
 
 // Network
 
-Network::Network(int sizeInput)
+// Network
+
+Network::Network(int sizeInput, int numLayers, int sizeLayers, int sizeOutput)
 {
 	// Local fields
 	int layer = 1;
 
 	// Initialize fields
 	this->sizeInput = sizeInput;
+	this->numLayers = numLayers;
+	this->sizeLayers = sizeLayers;
+	this->sizeOutput = sizeOutput;
 
 	// Initialize inputs
 	this->inputs = new double[sizeInput];
+
+	// Initialize layers vector
+	this->layers = new Layer[numLayers];
+
+	// Initialize first hidden layer
+	this->layers[0] = Layer(sizeLayers, sizeInput, this->inputs);
+
+	// Initialize hidden layers
+	for (layer; layer < numLayers - 1; layer++)
+	{
+		this->layers[layer] = Layer(sizeLayers, sizeLayers, this->layers[layer - 1].outputs);
+	}
+
+	// Initialize output layer
+	this->layers[numLayers - 1] = Layer(sizeOutput, sizeLayers, this->layers[numLayers - 2].outputs);
 }
 
 Network::~Network()
 {
 	
-}
-
-void Network::addLayer(ACTIVATION_TYPE activationType, int size)
-{
-	// Local fields
-	Layer prevLayer;
-	double* prevOutputs = nullptr;
-	int prevSize = 0;
-
-	if (this->layers.empty())
-	{
-		prevOutputs = this->inputs;
-		this->sizeInput;
-	}
-	else
-	{
-		prevLayer = this->layers.back();
-		prevOutputs = prevLayer.outputs;
-		prevSize = prevLayer.numNodes;
-	}
-	Layer newLayer(size, prevLayer.numNodes, prevOutputs);
-	this->layers.push_back(newLayer);
 }
 
 void Network::activate()
@@ -339,7 +319,7 @@ void Network::inputPng(const char* fileName)
 	{
 		for (x = 0; x < width; x++)
 		{
-			this->inputs[x + width * y] = pixelData[x + width * y];
+			this->inputs[x + width * y] = pixelData[x + width * y] / 255.0;
 		}
 	}
 }

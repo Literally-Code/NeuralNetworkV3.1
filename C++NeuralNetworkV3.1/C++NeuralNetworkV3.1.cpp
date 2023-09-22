@@ -20,7 +20,7 @@ int main()
     std::string lineBuffer;
     std::string token;
     double expectedOutput[10] = { 0.0 };
-    Network net = Network(IMAGE_SIZE * IMAGE_SIZE, 3, 8, 10);
+    Network net = Network(IMAGE_SIZE * IMAGE_SIZE, 2, 32, 10);
     if (!dataFile.is_open()) {
         std::cerr << "Error: Failed to open the file " << trainingFile << std::endl;
         return 1; // Exit with an error code

@@ -7,18 +7,11 @@
 #include "Arithmetic.h"
 
 constexpr int IMAGE_SIZE = 28;
-constexpr double LEARNING_RATE = 0.0000001;
+constexpr double LEARNING_RATE = 0.01;
 
 struct Node;
 struct Layer;
 class Network;
-
-enum ACTIVATION_TYPE
-{
-	SIGMOID, 
-	RELU, 
-	SOFTPLUS
-};
 
 struct Node
 {
@@ -26,7 +19,7 @@ struct Node
 	Node(int index, int numInputs);
 	~Node();
 
-	void activate(ACTIVATION_TYPE activation, double* inputs, double* outputs);
+	void activate(double* inputs, double* outputs);
 	void train(Layer* prevLayer);
 	void trainFirst(double* inputs);
 
@@ -56,16 +49,15 @@ struct Layer
 	int numNodes = 0;
 	Node* nodes = nullptr;
 	int numInputs = 0;
-	ACTIVATION_TYPE activation = SIGMOID;
 };
 
 class Network
 {
 public:
-	Network(int sizeInput);
+	Network(int sizeInput, int numLayers, int sizeLayers, int sizeOutput);
 	~Network();
 
-	void addLayer(ACTIVATION_TYPE activation, int size);
+	void addLayer(int size);
 	void activate();
 	void backPropagate(double* expectedOutput);
 	void setInput(double* inputs);
@@ -80,7 +72,7 @@ private:
 	int sizeLayers = 0;
 	int sizeOutput = 0;
 	double* inputs = nullptr;
-	std::vector<Layer> layers;
+	Layer* layers;
 };
 
 #endif
