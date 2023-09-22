@@ -20,7 +20,7 @@ int main()
     std::string lineBuffer;
     std::string token;
     double expectedOutput[10] = { 0.0 };
-    Network net = Network(IMAGE_SIZE * IMAGE_SIZE, 3, 32, 10);
+    Network net = Network(IMAGE_SIZE * IMAGE_SIZE, 2, 16, 10);
     if (!dataFile.is_open()) {
         std::cerr << "Error: Failed to open the file " << trainingFile << std::endl;
         return 1; // Exit with an error code
@@ -40,7 +40,7 @@ int main()
         tokens.clear();
     }
 
-    for (int epoch = 0; epoch < 100; epoch++)
+    for (int epoch = 0; epoch < 500; epoch++)
     {
         std::cout << "Epoch: " << epoch << std::endl;
         for (int file = 0; file < pairSize; file++)

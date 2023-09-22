@@ -323,6 +323,9 @@ void Network::inputPng(const char* fileName)
 			this->inputs[x + width * y] = pixelData[x + width * y];
 		}
 	}
+
+	// No more memory leak :)
+	delete pixelData;
 }
 
 double Network::getInputSize()
