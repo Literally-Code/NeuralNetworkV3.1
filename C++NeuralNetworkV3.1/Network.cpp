@@ -282,7 +282,7 @@ void Network::printOutput()
 	// Traverse nodes
 	for (node; node < outputLayer.numNodes; node++)
 	{
-		std::cout << outputLayer.nodes[node].output << std::endl;
+		std::cout << node << ": " << outputLayer.nodes[node].output << std::endl;
 	}
 }
 
