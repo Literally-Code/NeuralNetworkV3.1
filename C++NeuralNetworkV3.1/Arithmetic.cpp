@@ -12,9 +12,9 @@ double softMax(int index, const std::vector<double>& results)
 	double denominator = 0.0;
 
 	// Calculate SoftMax
-	for(auto result : results)
+	for(auto &result : results)
 	{
-		denominator = exp(result);
+		denominator += exp(result);
 	}
 
 	return exp(results[index]) / denominator;
